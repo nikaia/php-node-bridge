@@ -3,14 +3,16 @@ name: Tests
 on: [push, pull_request]
 
 jobs:
-  test:
+  phpunit:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest]
-        php: [8.2, 8.1]
+        php: [8.2, 8.1, 8.0]
         stability: [prefer-lowest, prefer-stable]
+    env:
+      CLOVER_FILE: reports/clover.xml
 
     name: P${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
@@ -34,4 +36,12 @@ jobs:
         run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
       - name: Execute tests
-        run: vendor/bin/pest
+        run: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover=$CLOVER_FILE
+
+      - name: "Coverage report"
+        uses: slavcodev/coverage-monitor-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          coverage_path: ${{ env.CLOVER_FILE }}
+          threshold_alert: 50
+          threshold_warning: 80
