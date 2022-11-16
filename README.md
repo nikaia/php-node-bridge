@@ -1,7 +1,7 @@
 # PHP NodeJS Bridge
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/nikaia/php-node-bridge.svg?style=flat-square)](https://packagist.org/packages/nikaia/php-node-bridge)
-[![Tests](https://github.com/nikaia/php-node-bridge/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/nikaia/php-node-bridge/actions/workflows/tests.yml)
+[![Tests](https://github.com/nikaia/php-node-bridge/actions/workflows/tests.yml)
 
 Call your NodeJS scripts from Php
 
