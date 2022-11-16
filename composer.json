@@ -38,7 +38,6 @@
         "sort-packages": true
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
     "scripts": {
         "test": "vendor/bin/phpunit",
         "release": "npx standard-version release --no-verify",
