@@ -15,7 +15,34 @@ composer require nikaia/php-node-bridge
 
 ## Usage
 
+The bridge work by executing a node script that accept piped json arbitary data, and returns json response.
+
+> check `tests/_fixtures/ok.script.js` for a working example
+
+
 ```php
+use Nikaia\NodeBridge\Bridge;
+
+try {
+    $response = Bridge::create()
+        ->setNode('/usr/local/bin/node')        // the path to the node (You can omit if in system path)
+        ->setScript('/path/to/your/script.js')  // the path to your script 
+        ->pipe(['foo' => 'bar'])                // the data to pipe to the script
+        ->run();
+}
+catch (BridgeException $e) {
+    echo $e->getMessage();
+}
+
+var_dump($response->json());   // ['foo' => 'bar']
+var_dump($response->output()); // the raw output of the script {"foo":"bar"}
+```
+```    
+``` 
+
+```
+
+
 ```
 
 ## Changelog

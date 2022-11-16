@@ -7,7 +7,7 @@ namespace Nikaia\NodeBridge;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class Runner
+class Bridge
 {
     /** @var string Full path to nodejs script file */
     protected string $script;
@@ -17,8 +17,25 @@ class Runner
 
     public function __construct(
         /** @var string Node.js executable, you can specify the full path if in a custom location */
-        protected string $nodeExecutable = 'node'
-    ) {
+        protected string $nodePath = 'node'
+    )
+    {
+    }
+
+    public static function create(): self
+    {
+        return new self();
+    }
+
+    /**
+     * @param string $nodePath
+     * @return Bridge
+     */
+    public function setNode(string $nodePath): Bridge
+    {
+        $this->nodePath = $nodePath;
+
+        return $this;
     }
 
     /**
@@ -34,7 +51,7 @@ class Runner
     /**
      * Set the piped string that will be sent to the nodejs script.
      */
-    public function pipe(string $pipedString): self
+    public function setPipedString(string $pipedString): self
     {
         $this->pipedString = $pipedString;
 
@@ -45,11 +62,19 @@ class Runner
      * Echo the passed string and pipe it to the nodejs script
      * i.e : echo '...string...' | nodejs script.js.
      */
-    public function echoPipe(string $string): self
+    public function pipeRaw(string $string): self
     {
         $escaped = str_replace("'", "\'", $string);
 
-        return $this->pipe("echo '" . $escaped . "'");
+        return $this->setPipedString("echo '" . $escaped . "'");
+    }
+
+    /**
+     * Pipe the passed array to the nodejs script after json encoding it.
+     */
+    public function pipe(array $input): self
+    {
+        return $this->pipeRaw(json_encode($input));
     }
 
     /**
@@ -63,12 +88,12 @@ class Runner
 
         $this->setUtf8Context();
 
-        $command = "{$this->pipedString} | {$this->nodeExecutable} " . $this->script;
+        $command = "{$this->pipedString} | {$this->nodePath} " . $this->script;
 
         $process = Process::fromShellCommandline($command);
         $process->run();
 
-        if (! $process->isSuccessful()) {
+        if (!$process->isSuccessful()) {
             throw new BridgeException(
                 (new ProcessFailedException($process))->getMessage()
             );

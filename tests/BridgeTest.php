@@ -3,17 +3,35 @@
 namespace Nikaia\NodeBridge\Tests;
 
 use Nikaia\NodeBridge\BridgeException;
-use Nikaia\NodeBridge\Runner;
+use Nikaia\NodeBridge\Bridge;
 use PHPUnit\Framework\TestCase;
 
-class RunnerTest extends TestCase
+class BridgeTest extends TestCase
 {
     /** @test */
-    public function it_runs_script_correctly()
+    public function it_runs_script_correctly_passing_array()
     {
-        $response = (new Runner())
+        $response = Bridge::create()
             ->setScript(__DIR__ . '/_fixtures/ok.script.js')
-            ->echoPipe('{"name":"John Doe"}')
+            ->pipe(['name' => 'John Doe'])
+            ->run();
+
+        $this->assertEquals([
+            'name' => 'John Doe',
+            'age' => 30,
+            'address' => [
+                'street' => 'Main',
+                'number' => 100,
+            ],
+        ], $response->json());
+    }
+
+    /** @test */
+    public function it_runs_script_correctly_passing_json()
+    {
+        $response = Bridge::create()
+            ->setScript(__DIR__ . '/_fixtures/ok.script.js')
+            ->pipeRaw('{"name":"John Doe"}')
             ->run();
 
         $this->assertEquals([
@@ -32,7 +50,7 @@ class RunnerTest extends TestCase
         $this->expectException(BridgeException::class);
         $this->expectExceptionMessage('You must pipe a string to the nodejs script');
 
-        (new Runner())
+        (new Bridge())
             ->setScript(__DIR__ . '/_fixtures/ok.script.js')
             ->run();
     }
@@ -43,9 +61,9 @@ class RunnerTest extends TestCase
         $this->expectException(BridgeException::class);
         $this->expectExceptionMessageMatches('/.*Error: Cannot find module.*/');
 
-        (new Runner())
+        (new Bridge())
             ->setScript(__DIR__ . '/_fixtures/does-not-exist.script.js')
-            ->echoPipe('{"name":"John Doe"}')
+            ->pipeRaw('{"name":"John Doe"}')
             ->run();
     }
 
@@ -55,9 +73,10 @@ class RunnerTest extends TestCase
         $this->expectException(BridgeException::class);
         $this->expectExceptionMessageMatches('/.*Error: Unexpected Error!*/');
 
-        (new Runner())
+        (new Bridge())
+            ->setNode('node')
             ->setScript(__DIR__ . '/_fixtures/error.script.js')
-            ->echoPipe('{"name":"John Doe"}')
+            ->pipeRaw('{"name":"John Doe"}')
             ->run();
     }
 }
