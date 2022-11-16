@@ -17,7 +17,7 @@ composer require nikaia/php-node-bridge
 
 The bridge work by executing a node script that accept piped json arbitary data, and returns json response.
 
-> check `tests/_fixtures/ok.script.js` for a working example
+> check [tests/_fixtures/ok.script.js](tests/_fixtures/ok.script.js) for a working example.
 
 
 ```php
