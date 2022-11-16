@@ -10,7 +10,7 @@ jobs:
       matrix:
         php: [8.2, 8.1, 8.0]
     env:
-      CLOVER_FILE: reports/clover.xml
+      CLOVER_FILE: clover.xml
 
     name: Php ${{ matrix.php }}
 
